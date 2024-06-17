@@ -1,4 +1,4 @@
-Realtime Person Motion Capture and Analysis in video
+Realtime Human Motion Tracking and Analysis
 
 ![Demo](demo.png)
 
