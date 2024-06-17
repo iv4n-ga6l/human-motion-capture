@@ -1,4 +1,4 @@
-Realtime Person Motion Capture in video
+Realtime Person Motion Capture and Analysis in video
 
 ![Demo](demo.png)
 
@@ -9,7 +9,9 @@ This project leverages Mediapipe and OpenCV to capture and analyze human poses i
 - Pose detection using Mediapipe's Pose solution.
 - Selfie segmentation to apply grayscale to the background.
 - Overlay of 3D landmarks in a white box on the video frame.
-- Calculation and display of the elbow angle.
+- Elbow Angle : We calculate the elbow angle using the 3D coordinates of the shoulder, elbow, and wrist landmarks.
+- Gait Analysis: We calculate the stride length by measuring the distance between the left and right heels.
+- Balance Analysis: We calculate the center of mass (COM) of the body by taking the average of all landmark coordinates. Then, we measure the distance from the COM to the left and right ankles. The difference between these distances is used as a balance score, where a smaller value indicates better balance.
 
 
 ## Requirements
