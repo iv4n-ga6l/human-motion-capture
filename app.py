@@ -14,6 +14,10 @@ mp_drawing = mp.solutions.drawing_utils
 # Start video capture
 cap = cv2.VideoCapture("video.mp4")
 
+fps = cap.get(cv2.CAP_PROP_FPS)
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter('output.avi', fourcc, fps, (int(cap.get(3)), int(cap.get(4))))
+
 def draw_3d_landmarks_on_box(image, landmarks, box_position):
     h, w, _ = image.shape
     box_w, box_h = 200, 200  # Size of the box
@@ -27,28 +31,11 @@ def draw_3d_landmarks_on_box(image, landmarks, box_position):
         y = int(landmark.y * box_h)
         z = int(landmark.z * box_w)  # assuming box_w == box_h for aspect ratio consistency
         cv2.circle(box_image, (x, y), 3, (255, 0, 0), -1)
-        cv2.putText(box_image, f'  {z:.2f}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (51, 51, 255), 1, cv2.LINE_AA)
+        # cv2.putText(box_image, f'  {z:.2f}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (51, 51, 255), 1, cv2.LINE_AA)
 
     # Overlay the box image on the main image
     image[box_y:box_y+box_h, box_x:box_x+box_w] = box_image
 
-
-# def draw_3d_landmarks_coords_on_box(image, landmarks, box_position):
-#     h, w, _ = image.shape
-#     box_w, box_h = 200, 200  # Size of the box
-#     box_x, box_y = box_position
-    
-#     # box_image
-#     box_image = np.ones((box_h, box_w, 3), dtype=np.uint8) * np.array([255, 255, 255], dtype=np.uint8)
-    
-#     for landmark in landmarks:
-#         x = int(landmark.x * box_w)
-#         y = int(landmark.y * box_h)
-#         z = int(landmark.z * box_w)  # assuming box_w == box_h for aspect ratio consistency
-#         cv2.putText(box_image, f'  {z:.2f}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1, cv2.LINE_AA)
-
-#     # Overlay the box image on the main image
-#     image[box_y:box_y+box_h, box_x:box_x+box_w] = box_image
 
 
 def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
@@ -116,8 +103,9 @@ def main():
         ret, frame = cap.read()
         if not ret:
             # Restart the video
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            continue
+            # cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            # continue
+            break
 
         # Convert the BGR image to RGB
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -136,18 +124,19 @@ def main():
             # Draw 3D landmarks in the box
             draw_3d_landmarks_on_box(frame, landmarks, (frame.shape[1] - 210, 10))  # 10 px padding
 
-            # draw_3d_landmarks_coords_on_box(frame, landmarks, (frame.shape[1] - 460, 10))
-
             # Draw analytics overlay
             analytics_overlay = draw_analytics_overlay(landmarks)
             frame[10:10+analytics_overlay.shape[0], 10:10+analytics_overlay.shape[1]] = analytics_overlay
 
         # Apply grayscale to the background
-        mask = results_segmentation.segmentation_mask > 0.1
-        mask = np.stack((mask,) * 3, axis=-1)  # Convert to 3 channels
-        background = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        background = cv2.cvtColor(background, cv2.COLOR_GRAY2BGR)  # Convert grayscale back to BGR
-        frame = np.where(mask, frame, background)
+        # mask = results_segmentation.segmentation_mask > 0.1
+        # mask = np.stack((mask,) * 3, axis=-1)  # Convert to 3 channels
+        # background = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # background = cv2.cvtColor(background, cv2.COLOR_GRAY2BGR)  # Convert grayscale back to BGR
+        # frame = np.where(mask, frame, background)
+
+        # Write the frame to the output video file
+        out.write(frame)
 
         # Display the resulting frame
         cv2.imshow('Motion Capture', frame)
