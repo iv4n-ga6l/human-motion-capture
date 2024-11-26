@@ -35,7 +35,7 @@ def draw_3d_landmarks_on_box(image, landmarks, box_position):
     # Overlay the box image on the main image
     image[box_y:box_y+box_h, box_x:box_x+box_w] = box_image
 
-def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
+def draw_analytics_overlay(landmarks, overlay_size=(300, 150)):
     overlay_image = np.ones((overlay_size[1], overlay_size[0], 3), dtype=np.uint8) * np.array([252, 3, 161], dtype=np.uint8)
     text_y = 20
 
