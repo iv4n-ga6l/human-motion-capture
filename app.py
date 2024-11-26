@@ -12,11 +12,11 @@ selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=
 mp_drawing = mp.solutions.drawing_utils
 
 # Start video capture
-cap = cv2.VideoCapture("video.mp4")
+cap = cv2.VideoCapture("video5.mp4")
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('output.avi', fourcc, fps, (int(cap.get(3)), int(cap.get(4))))
+out = cv2.VideoWriter('output5.mp4', fourcc, fps, (int(cap.get(3)), int(cap.get(4))))
 
 def draw_3d_landmarks_on_box(image, landmarks, box_position):
     h, w, _ = image.shape
@@ -24,22 +24,19 @@ def draw_3d_landmarks_on_box(image, landmarks, box_position):
     box_x, box_y = box_position
     
     # the box
-    box_image = np.ones((box_h, box_w, 3), dtype=np.uint8) * np.array([255, 255, 255], dtype=np.uint8)
+    box_image = np.ones((box_h, box_w, 3), dtype=np.uint8) * np.array([252, 3, 161], dtype=np.uint8)
     
     for landmark in landmarks:
         x = int(landmark.x * box_w)
         y = int(landmark.y * box_h)
-        z = int(landmark.z * box_w)  # assuming box_w == box_h for aspect ratio consistency
-        cv2.circle(box_image, (x, y), 3, (255, 0, 0), -1)
-        # cv2.putText(box_image, f'  {z:.2f}', (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (51, 51, 255), 1, cv2.LINE_AA)
+        z = int(landmark.z * box_w)  
+        cv2.circle(box_image, (x, y), 3, (3, 252, 206), -1)
 
     # Overlay the box image on the main image
     image[box_y:box_y+box_h, box_x:box_x+box_w] = box_image
 
-
-
 def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
-    overlay_image = np.ones((overlay_size[1], overlay_size[0], 3), dtype=np.uint8) * np.array([255, 255, 255], dtype=np.uint8)
+    overlay_image = np.ones((overlay_size[1], overlay_size[0], 3), dtype=np.uint8) * np.array([252, 3, 161], dtype=np.uint8)
     text_y = 20
 
     ## Posture Analysis
@@ -61,7 +58,7 @@ def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
 
     angle_deg = np.degrees(angle)
     cv2.putText(overlay_image, f'Elbow Angle: {int(angle_deg)}', (10, text_y), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
     text_y += 30
 
     ## Gait Analysis
@@ -70,7 +67,7 @@ def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
     right_heel = landmarks[mp_pose.PoseLandmark.RIGHT_HEEL.value]
     stride_length = np.linalg.norm([left_heel.x - right_heel.x, left_heel.y - right_heel.y, left_heel.z - right_heel.z])
     cv2.putText(overlay_image, f'Stride Length: {stride_length:.2f}', (10, text_y), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
     text_y += 30
 
     ## Balance Analysis
@@ -89,7 +86,7 @@ def draw_analytics_overlay(landmarks, overlay_size=(300, 200)):
     # Calculate balance score
     balance_score = abs(left_ankle_dist - right_ankle_dist)
     cv2.putText(overlay_image, f'Balance Score: {balance_score:.2f}', (10, text_y), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
 
     return overlay_image
 
@@ -112,7 +109,6 @@ def main():
 
         # Process the image and detect the pose
         results_pose = pose.process(image_rgb)
-        results_segmentation = selfie_segmentation.process(image_rgb)
 
         if results_pose.pose_landmarks:
             # Draw the pose annotation on the image.
@@ -128,20 +124,14 @@ def main():
             analytics_overlay = draw_analytics_overlay(landmarks)
             frame[10:10+analytics_overlay.shape[0], 10:10+analytics_overlay.shape[1]] = analytics_overlay
 
-        # Apply grayscale to the background
-        # mask = results_segmentation.segmentation_mask > 0.1
-        # mask = np.stack((mask,) * 3, axis=-1)  # Convert to 3 channels
-        # background = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # background = cv2.cvtColor(background, cv2.COLOR_GRAY2BGR)  # Convert grayscale back to BGR
-        # frame = np.where(mask, frame, background)
-
         # Write the frame to the output video file
         out.write(frame)
 
         # Display the resulting frame
         cv2.imshow('Motion Capture', frame)
 
-        if cv2.waitKey(5) & 0xFF == 27:
+        # Break loop on 'q' press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
         frame_count += 1
