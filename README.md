@@ -1,6 +1,6 @@
 Realtime Human Motion Tracking and Analysis
 
-![Demo](Demo.png)
+![Demo](demo.png)
 
 ## Overview
 This project leverages Mediapipe and OpenCV to capture and analyze human poses in a video. It detects and visualizes 3D pose landmarks, displays an overlay box showing the 3D landmarks, and performs simple posture analysis. The OpenCV GUI window is resizable, making it flexible for various screen sizes.
